@@ -4,9 +4,9 @@ const formInputs = document.getElementById('formInputs');
 // Dynamically create input fields for each feature
 features.forEach(feature => {
     formInputs.innerHTML += `
-        <div>
+        <div class="form-group">
             <label for="${feature}">${feature}</label>
-            <input type="text" id="${feature}" name="${feature}" required>
+            <input type="number" id="${feature}" name="${feature}" required>
         </div>
     `;
 });
@@ -31,5 +31,13 @@ form.addEventListener('submit', async (e) => {
 
     // Display result
     const result = await response.json();
-    document.getElementById('result').textContent = result.result || `Error: ${result.error}`;
+    const resultDiv = document.getElementById('result');
+
+    if (result.error) {
+        resultDiv.className = 'result error';
+        resultDiv.textContent = `Error: ${result.error}`;
+    } else {
+        resultDiv.className = 'result success';
+        resultDiv.textContent = result.result;
+    }
 });
