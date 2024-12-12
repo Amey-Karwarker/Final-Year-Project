@@ -1,12 +1,12 @@
 // Define the features and specify their types (integer or float)
 const features = [
     { name: 'Pregnancies', type: 'number' },
-    { name: 'Glucose', type: 'number' },
-    { name: 'BloodPressure', type: 'number' },
-    { name: 'SkinThickness', type: 'number' },
-    { name: 'Insulin', type: 'number' },
-    { name: 'BMI', type: 'float' },
-    { name: 'DiabetesPedigreeFunction', type: 'float' },
+    { name: 'Glucose(60 to 20 mg/dL)', type: 'number' },
+    { name: 'BloodPressure(40 to 122 mm Hg)', type: 'number' },
+    { name: 'SkinThickness(7 to 100 mm)', type: 'number' },
+    { name: 'Insulin(15 to 276 μU/mL)', type: 'number' },
+    { name: 'BMI(18.5 to 50+)', type: 'float' },
+    { name: 'DiabetesPedigreeFunction(0.6 to 2.2)', type: 'float' },
     { name: 'Age', type: 'number' }
 ];
 
