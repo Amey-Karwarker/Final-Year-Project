@@ -1,0 +1,392 @@
+/* Reset & Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Make the main content expand and push the footer down */
+main {
+    background: linear-gradient(to right, #1c3d5a, #2c5070);
+    flex: 1;
+}
+
+body {
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1c3d5a;
+    padding: 15px 50px;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo h1 {
+    font-size: 1.8rem;
+}
+
+nav ul {
+    list-style-type: none;
+    display: flex;
+    gap: 25px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: white;
+    font-size: 1rem;
+    transition: 0.3s ease-in-out;
+    padding: 8px 12px;
+}
+
+nav ul li a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(to right, #1c3d5a, #2c5070);
+    color: white;
+    padding: 50px 30px;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hero-content {
+    max-width: 80%;
+}
+
+.hero-content h2 {
+    font-size: 2.8rem;
+    margin-bottom: 15px;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.cta-button {
+    background-color: #ff6b6b;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.cta-button:hover {
+    background-color: #ff4949;
+}
+
+/* Hero Image */
+.hero-image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    /* Aligns image to the right */
+}
+
+.hero-image img {
+    max-width: 100%;
+    height: auto;
+    width: 350px;
+    /* Adjust image size */
+    border-radius: 10px;
+    /* Optional rounded corners */
+}
+
+/* Sections */
+.section {
+    padding: 80px 50px;
+    text-align: center;
+}
+
+.light-section {
+    background: #ffffff;
+}
+
+.dark-section {
+    background: #2c5070;
+    color: white;
+}
+
+/* Buttons */
+button {
+    background: #1c3d5a;
+    color: white;
+    padding: 8.75px 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    margin-top: 15px;
+}
+
+button:hover {
+    background: #2c5070;
+}
+
+/* Prediction Container */
+.prediction-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    align-items: center;
+}
+
+
+/* Forms */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+label {
+    font-weight: bold;
+    margin: 10px 0 5px;
+    text-align: left;
+    width: 100%;
+}
+
+#input-fields {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    /* gap: 15px;
+    margin-top: 8px; */
+}
+
+select,
+input {
+    width: 100%;
+    padding: 7px;
+    /* margin-top: 8px; */
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+/* Chatbot Section */
+.chatbot-section {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* File Upload Section */
+
+.file-upload h3 {
+    color: #1c3d5a;
+    margin-bottom: 20px;
+}
+
+input[type="file"] {
+    width: 80%;
+    padding: 10px;
+    margin: 2px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Chat Container */
+.chat-container {
+    width: 100%;
+    margin-top: 20px;
+    align-items: center;
+}
+
+#chatbox {
+    height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+    background: #f4f4f4;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.bot-message,
+.user-message {
+    padding: 10px;
+    border-radius: 5px;
+    margin: 5px;
+    max-width: 80%;
+}
+
+.bot-message {
+    background: #2c5070;
+    color: white;
+    text-align: left;
+    align-self: flex-start;
+}
+
+.user-message {
+    background: #007bff;
+    color: white;
+    text-align: right;
+    align-self: flex-end;
+}
+
+input[type="text"] {
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#send-btn {
+    background: #1c3d5a;
+    color: white;
+    padding: 8.75px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#send-btn:hover {
+    background: #2c5070;
+}
+
+/* Contact Page Styles */
+
+.contact-hero {
+    background: linear-gradient(to right, #1c3d5a, #2c5070);
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.contact-container {
+    width: 80%;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Left Column: Contact Details */
+.left-column {
+    flex: 1;
+    padding: 0 10px;
+}
+
+.left-column h1 {
+    font-size: 2rem;
+    color: #1c3d5a;
+    margin-bottom: 30px;
+}
+
+.left-column h2 {
+    font-size: 1.5rem;
+    color: #2c5070;
+    margin: 40px 0 15px;
+}
+
+.left-column p {
+    font-size: 1rem;
+    margin: 5px 0;
+}
+
+.left-column a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.left-column a:hover {
+    text-decoration: underline;
+}
+
+/* Right Column: Contact Form */
+.right-column {
+    flex: 1;
+    background: #f9f9f9;
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.right-column form {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.right-column label {
+    font-weight: bold;
+    margin-bottom: 0;
+}
+
+.right-column input,
+.right-column select,
+.right-column textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.right-column input[type="submit"] {
+    background: #1c3d5a;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.right-column input[type="submit"]:hover {
+    background: #2c5070;
+}
+
+/* Footer */
+footer {
+    background-color: #1c3d5a;
+    /* Navy Blue */
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    width: 100%;
+    margin-top: auto;
+    /* Ensures footer is pushed to the bottom */
+}
