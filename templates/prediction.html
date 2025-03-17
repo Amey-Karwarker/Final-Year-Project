@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease Prediction - APKA Doc</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/script.js" defer></script>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <h1>APKA Doc - Predictor</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/chatbot">Chatbot</a></li>
+                <li><a href="/contact">Contact Us</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="prediction-container">
+            <h2>Select Disease & Enter Details</h2>
+            <form id="prediction-form">
+                <label for="disease">Choose a Disease:</label>
+                <select id="disease" name="disease">
+                    <option value="heart">Heart Disease</option>
+                    <option value="diabetes">Diabetes</option>
+                    <option value="liver">Liver Disease</option>
+                    <option value="kidney">Kidney Disease</option>
+                </select>
+
+                <div id="input-fields">
+                    <!-- Dynamic fields will be inserted here based on disease selection -->
+                </div>
+
+                <button type="submit">Predict</button>
+            </form>
+
+            <div id="result"></div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 APKA Doc | AI-Powered Healthcare</p>
+    </footer>
+
+</body>
+
+</html>

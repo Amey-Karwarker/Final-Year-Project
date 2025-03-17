@@ -1,0 +1,108 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot - APKA Doc</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script defer src="/static/script.js"></script>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">
+            <h1>APKA Doc - Chatbot</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/prediction">Disease Prediction</a></li>
+                <li><a href="/contact">Contact Us</a></li>
+            </ul>
+        </nav>
+    </header>
+
+
+    <main>
+        <section class="chatbot-section">
+            <h2>Upload Medical Report</h2>
+            <form id="upload-form" enctype="multipart/form-data">
+                <input type="file" name="file" id="file-input" accept=".pdf, .jpg, .jpeg, .png" required>
+                <button type="submit">Analyze Report</button>
+            </form>
+            <div id="analysis-result"></div>
+        </section>  
+    </main>
+
+    <footer>
+        <p>&copy; 2024 APKA Doc | AI-Powered Healthcare</p>
+    </footer>
+
+</body>
+
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot - APKA Doc</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script defer src="/static/script.js"></script>
+</head>
+
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="logo">
+            <h1>APKA Doc - Chatbot</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/prediction">Disease Prediction</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Chatbot Section -->
+        <section class="chatbot-section">
+
+            <!-- File Upload Section -->
+            <div class="file-upload">
+                <h3>Upload Your Medical Report</h3>
+                <form id="upload-form" enctype="multipart/form-data">
+                    <input type="file" id="file-input" accept=".pdf, .jpg, .jpeg, .png" required>
+                    <button type="submit">Upload & Analyze</button>
+                </form>
+                <div id="analysis-result"></div>
+            </div>
+
+            <!-- Chatbox Section -->
+            <div class="chat-container">
+                <div id="chatbox">
+                    <div class="bot-message">Hello! I am APKA assistant. You can ask me medical-related
+                        questions
+                        or upload your medical report for analysis.</div>
+                </div>
+                <input type="text" id="user-input" placeholder="Ask me about your health..." autocomplete="off">
+                <button id="send-btn">Send</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 APKA Doc | All Rights Reserved</p>
+    </footer>
+
+</body>
+
+</html>
