@@ -163,6 +163,10 @@ button:hover {
     align-items: center;
 }
 
+.image-input {
+    padding: 20px 0 10px;
+}
+
 
 /* Forms */
 form {

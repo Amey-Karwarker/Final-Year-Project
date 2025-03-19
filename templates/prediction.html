@@ -33,10 +33,16 @@
                     <option value="diabetes">Diabetes</option>
                     <option value="liver">Liver Disease</option>
                     <option value="kidney">Kidney Disease</option>
+                    <option value="pneumonia">Pneumonia</option>
                 </select>
 
                 <div id="input-fields">
                     <!-- Dynamic fields will be inserted here based on disease selection -->
+                </div>
+
+                <div class="image-input" id="file-upload" style="display: none;">
+                    <label for="image-input">Upload Chest X-Ray:</label>
+                    <input type="file" id="image-input" name="image" accept="image/*">
                 </div>
 
                 <button type="submit">Predict</button>

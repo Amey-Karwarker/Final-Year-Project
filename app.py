@@ -7,7 +7,7 @@ from PIL import Image
 import numpy as np
 import pickle  # To load trained model
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
+# from sklearn.ensemble import RandomForestClassifier
 
 app = Flask(__name__, template_folder="templates")
 UPLOAD_FOLDER = "uploads"
@@ -54,6 +54,8 @@ def analyze_text_with_gpt(text):
     )
     return response["choices"][0]["message"]["content"]
 
+
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -69,6 +71,43 @@ def chatbot():
 @app.route("/contact")
 def contact():
     return render_template("contact.html")
+
+
+
+
+@app.route("/chatbot", methods=["POST"])
+def chatbot_response():
+    try:
+        data = request.json
+        user_message = data.get("message", "").strip()
+
+        if not user_message:
+            return jsonify({"reply": "Sorry, I didn't receive a message. Please try again."})
+
+        # Ensure the bot only responds to medical-related queries
+        restriction_prompt = (
+            "You are a medical AI assistant. Respond only to medical-related queries. "
+            "If the user asks something unrelated to medical topics, reply with: "
+            "'Please ask only medical-related questions.'"
+        )
+
+        # Send user message to OpenAI GPT-3.5 Turbo
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": restriction_prompt},
+                {"role": "user", "content": user_message}
+            ],
+            max_tokens=150
+        )
+
+        reply = response["choices"][0]["message"]["content"].strip()
+        return jsonify({"reply": reply})
+
+    except Exception as e:
+        return jsonify({"reply": "Sorry, something went wrong. Please try again."})
+
+
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
@@ -126,6 +165,36 @@ def predict():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+
+# Load Pneumonia Model
+pneumonia_model = load_model("models/pneumonia.h5")
+
+def preprocess_image(image_path):
+    img = load_img(image_path, target_size=(150, 150))
+    img_array = img_to_array(img) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
+    return img_array
+
+@app.route("/predict_pneumonia", methods=["POST"])
+def predict_pneumonia():
+    if "image" not in request.files:
+        return jsonify({"error": "No image uploaded"}), 400
+    
+    image = request.files["image"]
+    image_path = os.path.join(app.config["UPLOAD_FOLDER"], image.filename)
+    image.save(image_path)
+
+    img_array = preprocess_image(image_path)
+    prediction = pneumonia_model.predict(img_array)[0][0]
+
+    result = "Pneumonia Detected" if prediction > 0.5 else "Normal Lungs"
+    return jsonify({"result": result})
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

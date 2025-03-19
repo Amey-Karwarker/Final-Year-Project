@@ -42,6 +42,8 @@ if (document.getElementById("prediction-form")) {
     document.addEventListener("DOMContentLoaded", function () {
         const diseaseSelect = document.getElementById("disease");
         const inputFieldsDiv = document.getElementById("input-fields");
+        const fileUploadDiv = document.getElementById("file-upload");
+        const fileInput = document.getElementById("image-input");
         const form = document.getElementById("prediction-form");
         const resultDiv = document.getElementById("result");
 
@@ -99,8 +101,12 @@ if (document.getElementById("prediction-form")) {
 
         function updateFormFields() {
             inputFieldsDiv.innerHTML = "";
+            fileUploadDiv.style.display = "none";
+
             const selectedDisease = diseaseSelect.value;
-            if (selectedDisease && diseaseInputs[selectedDisease]) {
+            if (selectedDisease === "pneumonia") {
+                fileUploadDiv.style.display = "block"; // Show file upload
+            } else if (diseaseInputs[selectedDisease]) {
                 diseaseInputs[selectedDisease].forEach(field => {
                     const label = document.createElement("label");
                     label.textContent = field.label;
@@ -108,7 +114,7 @@ if (document.getElementById("prediction-form")) {
                     input.type = field.type;
                     input.name = field.name;
                     input.required = true;
-                    input.step = "any"; // Fixes float input issue
+                    input.step = "any";
 
                     inputFieldsDiv.appendChild(label);
                     inputFieldsDiv.appendChild(input);
@@ -121,59 +127,103 @@ if (document.getElementById("prediction-form")) {
 
         form.addEventListener("submit", async function (event) {
             event.preventDefault();
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
+            const selectedDisease = diseaseSelect.value;
 
-            data["disease"] = diseaseSelect.value;
-
-            Object.keys(data).forEach(key => {
-                if (!isNaN(data[key])) {
-                    data[key] = parseFloat(data[key]);
+            if (selectedDisease === "pneumonia") {
+                if (!fileInput.files.length) {
+                    resultDiv.innerHTML = `<p class="error">Please upload an image.</p>`;
+                    return;
                 }
-            });
 
-            try {
-                const response = await fetch("/predict", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data)
+                const formData = new FormData();
+                formData.append("image", fileInput.files[0]);
+                formData.append("disease", "pneumonia");
+
+                try {
+                    const response = await fetch("/predict_pneumonia", {
+                        method: "POST",
+                        body: formData
+                    });
+                    const result = await response.json();
+                    resultDiv.innerHTML = `<p>Prediction: <strong>${result.result}</strong></p>`;
+                } catch (error) {
+                    resultDiv.innerHTML = `<p class="error">Error predicting pneumonia.</p>`;
+                }
+            } else {
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                data["disease"] = selectedDisease;
+
+                Object.keys(data).forEach(key => {
+                    if (!isNaN(data[key])) {
+                        data[key] = parseFloat(data[key]);
+                    }
                 });
-                const result = await response.json();
-                resultDiv.innerHTML = result.error ? `<p class="error">Error: ${result.error}</p>` : `<p>Prediction: <strong>${result.result}</strong></p>`;
-            } catch (error) {
-                resultDiv.innerHTML = `<p>Error predicting disease.</p>`;
+
+                try {
+                    const response = await fetch("/predict", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+                    resultDiv.innerHTML = result.error ? `<p class="error">Error: ${result.error}</p>` : `<p>Prediction: <strong>${result.result}</strong></p>`;
+                } catch (error) {
+                    resultDiv.innerHTML = `<p>Error predicting disease.</p>`;
+                }
             }
         });
     });
-};
+}
 
 // Chatbot Interaction
-sendBtn.addEventListener("click", function () {
-    const userMessage = userInput.value.trim();
-    if (userMessage === "") return;
+document.addEventListener("DOMContentLoaded", function () {
+    const sendBtn = document.getElementById("send-btn");
+    const userInput = document.getElementById("user-input");
+    const chatbox = document.getElementById("chatbox");
 
-    addMessage(userMessage, "user");
+    if (!sendBtn || !userInput || !chatbox) {
+        console.error("Required elements not found in the DOM!");
+        return;
+    }
 
-    fetch("/chatbot", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage })
-    })
-        .then(response => response.json())
-        .then(data => {
-            addMessage(data.reply, "bot");
+    sendBtn.addEventListener("click", function () {
+        const userMessage = userInput.value.trim();
+        if (userMessage === "") return;
+
+        addMessage(userMessage, "user");
+
+        fetch("/chatbot", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: userMessage })
         })
-        .catch(error => {
-            addMessage("Sorry, something went wrong. Please try again.", "bot");
-        });
+            .then(response => response.json())
+            .then(data => {
+                let botReply = data.reply || "Sorry, something went wrong. Please try again.";
+                addMessage(botReply, "bot");
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                addMessage("Sorry, something went wrong. Please try again.", "bot");
+            });
 
-    userInput.value = "";
+        userInput.value = ""; // Clear input field after sending message
+    });
 });
 
 function addMessage(text, sender) {
+    const chatbox = document.getElementById("chatbox");
+    if (!chatbox) {
+        console.error("Chatbox element not found!");
+        return;
+    }
+
     const messageDiv = document.createElement("div");
     messageDiv.classList.add(sender === "user" ? "user-message" : "bot-message");
     messageDiv.textContent = text;
+
     chatbox.appendChild(messageDiv);
     chatbox.scrollTop = chatbox.scrollHeight;
-};
+}
