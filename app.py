@@ -1,25 +1,30 @@
 from flask import Flask, request, jsonify, render_template
 import os
-import openai
-import pdfplumber
+import fitz  # PyMuPDF
+import requests
+from flask_cors import CORS
 import pytesseract
 from PIL import Image
 import numpy as np
-import pickle  # To load trained model
+import pickle
 import pandas as pd
-# from sklearn.ensemble import RandomForestClassifier
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
 
+# Initialize Flask
 app = Flask(__name__, template_folder="templates")
+CORS(app)
+
+# Upload folder setup
 UPLOAD_FOLDER = "uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# OpenAI API Key (Replace with your actual key)
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Global variable to store extracted text for chat context
+extracted_text_memory = ""
 
-# Load Trained Models
+# Load traditional ML models
 models = {}
-
 for disease in ["heart", "diabetes", "liver", "kidney"]:
     model_path = f"models/{disease}.pkl"
     if os.path.exists(model_path):
@@ -31,34 +36,22 @@ for disease in ["heart", "diabetes", "liver", "kidney"]:
                 "scaler": model_data.get("scaler", None)
             }
     else:
-        raise FileNotFoundError(f"Model file {model_path} not found. Train & save the model first.")
+        raise FileNotFoundError(f"{model_path} not found")
 
+# Load pneumonia CNN model
+pneumonia_model = load_model("models/pneumonia.h5")
 
-def extract_text(file_path):
-    """ Extracts text from PDFs and images """
-    if file_path.lower().endswith(".pdf"):
-        with pdfplumber.open(file_path) as pdf:
-            return "\n".join(page.extract_text() for page in pdf.pages if page.extract_text())
+def preprocess_image(image_path):
+    img = load_img(image_path, target_size=(150, 150))
+    img_array = img_to_array(img) / 255.0
+    return np.expand_dims(img_array, axis=0)
 
-    elif file_path.lower().endswith((".jpg", ".jpeg", ".png")):
-        return pytesseract.image_to_string(Image.open(file_path))
+# -------------------------- ROUTES --------------------------
 
-    return "Unsupported file format"
-
-def analyze_text_with_gpt(text):
-    """ Sends extracted text to GPT-3.5 for analysis """
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": f"Analyze this medical report and provide insights:\n{text}"}],
-        max_tokens=500
-    )
-    return response["choices"][0]["message"]["content"]
-
-
-
+# Serve SPA or index.html
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template('index.html')
 
 @app.route("/prediction")
 def prediction():
@@ -72,118 +65,37 @@ def chatbot():
 def contact():
     return render_template("contact.html")
 
-
-
-
-@app.route("/chatbot", methods=["POST"])
-def chatbot_response():
-    try:
-        data = request.json
-        user_message = data.get("message", "").strip()
-
-        if not user_message:
-            return jsonify({"reply": "Sorry, I didn't receive a message. Please try again."})
-
-        # Ensure the bot only responds to medical-related queries
-        restriction_prompt = (
-            "You are a medical AI assistant. Respond only to medical-related queries. "
-            "If the user asks something unrelated to medical topics, reply with: "
-            "'Please ask only medical-related questions.'"
-        )
-
-        # Send user message to OpenAI GPT-3.5 Turbo
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": restriction_prompt},
-                {"role": "user", "content": user_message}
-            ],
-            max_tokens=150
-        )
-
-        reply = response["choices"][0]["message"]["content"].strip()
-        return jsonify({"reply": reply})
-
-    except Exception as e:
-        return jsonify({"reply": "Sorry, something went wrong. Please try again."})
-
-
-
-@app.route("/upload", methods=["POST"])
-def upload_file():
-    if "file" not in request.files:
-        return jsonify({"error": "No file part"})
-
-    file = request.files["file"]
-    if file.filename == "":
-        return jsonify({"error": "No selected file"})
-
-    file_path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
-    file.save(file_path)
-
-    # Extract text from file
-    extracted_text = extract_text(file_path)
-
-    # Send text to GPT-3.5 for analysis
-    analysis = analyze_text_with_gpt(extracted_text)
-
-    return jsonify({"analysis": analysis})
-
+# Disease Prediction (heart, kidney, liver, diabetes)
 @app.route("/predict", methods=["POST"])
 def predict():
-    """Handles prediction requests"""
     try:
-        input_data = request.json  # Get input data from frontend
-        disease = input_data.pop("disease") #Get selected disease
+        input_data = request.json
+        disease = input_data.pop("disease")
+
         if disease not in models:
-            return jsonify({"error": "Invalid input data"}), 400
-        
+            return jsonify({"error": "Invalid disease"}), 400
 
         model_info = models[disease]
         model = model_info["model"]
         feature_names = model_info["feature_names"]
-        scaler = model_info.get("scaler")
 
-        values = [float(input_data.get(feature, 0)) for feature in feature_names]  # Convert to float
+        values = [float(input_data.get(f, 0)) for f in feature_names]
+        df = pd.DataFrame([values], columns=feature_names)
 
-        # Convert to DataFrame with correct feature names
-        input_df = pd.DataFrame([values], columns=feature_names)  
-
-        # # Apply the same scaling as in training
-        # if scaler:
-        #     input_df = scaler.transform(input_df)
-        
-        # # Convert input data to match training format
-        # input_array = input_df.to_numpy()  # Remove feature names
-
-        # Make Prediction
-        prediction = model.predict(input_df)[0]
-
+        prediction = model.predict(df)[0]
         result = "Disease Present" if prediction == 1 else "No Disease"
 
-        return jsonify({"result": result})  # Send result back to frontend
+        return jsonify({"result": result})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
 
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
-
-# Load Pneumonia Model
-pneumonia_model = load_model("models/pneumonia.h5")
-
-def preprocess_image(image_path):
-    img = load_img(image_path, target_size=(150, 150))
-    img_array = img_to_array(img) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)
-    return img_array
-
+# Pneumonia Prediction
 @app.route("/predict_pneumonia", methods=["POST"])
 def predict_pneumonia():
     if "image" not in request.files:
         return jsonify({"error": "No image uploaded"}), 400
-    
+
     image = request.files["image"]
     image_path = os.path.join(app.config["UPLOAD_FOLDER"], image.filename)
     image.save(image_path)
@@ -194,7 +106,66 @@ def predict_pneumonia():
     result = "Pneumonia Detected" if prediction > 0.5 else "Normal Lungs"
     return jsonify({"result": result})
 
+# Upload report and extract + chat
+@app.route('/extract-and-chat', methods=['POST'])
+def extract_and_chat():
+    global extracted_text_memory
 
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
 
+    file = request.files['file']
+    filename = file.filename.lower()
+
+    extracted_text = ""
+    if filename.endswith(('.png', '.jpg', '.jpeg')):
+        image = Image.open(file.stream)
+        extracted_text = pytesseract.image_to_string(image)
+
+    elif filename.endswith('.pdf'):
+        pdf_bytes = file.read()
+        doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+        for page in doc:
+            extracted_text += page.get_text()
+        doc.close()
+    else:
+        return jsonify({'error': 'Unsupported file type'}), 400
+
+    extracted_text_memory = extracted_text  # Store for future chats
+
+    prompt = f"This is a medical report: \n\n{extracted_text}\n\nExplain what conditions or diseases might be indicated and what the patient should be aware of."
+    ollama_response = requests.post('http://localhost:11434/api/generate', json={
+        "model": "mistral",
+        "prompt": prompt,
+        "stream": False
+    })
+
+    result = ollama_response.json()
+    return jsonify({
+        'extracted_text': extracted_text,
+        'ai_explanation': result.get('response', 'No response from Ollama')
+    })
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    global extracted_text_memory
+    user_question = request.json.get('question', '')
+
+    if not user_question:
+        return jsonify({'error': 'No question provided'}), 400
+
+    prompt = f"Refer to this medical report:\n\n{extracted_text_memory}\n\nUser question: {user_question}\n\nAnswer in simple terms:"
+    ollama_response = requests.post('http://localhost:11434/api/generate', json={
+        "model": "mistral",
+        "prompt": prompt,
+        "stream": False
+    })
+
+    result = ollama_response.json()
+    return jsonify({
+        'response': result.get('response', 'No response from Ollama')
+    })
+
+# -------------------------- MAIN --------------------------
 if __name__ == "__main__":
     app.run(debug=True)
