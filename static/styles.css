@@ -261,6 +261,18 @@ pre {
     word-wrap: break-word;
 }
 
+#extractedText,
+#aiResponse {
+    max-height: 200px;
+    /* Adjust height as needed */
+    overflow: auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    white-space: pre-wrap;
+    margin-bottom: 10px;
+}
+
 /* Chat Container */
 .chat-container {
     text-align: center;
@@ -334,6 +346,7 @@ pre {
 .chat-input button:hover {
     background: #2c5070;
 }
+
 /* Contact Page Styles */
 
 .contact-hero {
