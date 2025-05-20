@@ -122,11 +122,17 @@ def extract_and_chat():
         image = Image.open(file.stream)
         extracted_text = pytesseract.image_to_string(image)
 
+    # elif filename.endswith('.pdf'):
+    #     pdf_bytes = file.read()
+    #     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    #     for page in doc:
+    #         extracted_text += page.get_text()
+    #     doc.close()
     elif filename.endswith('.pdf'):
         pdf_bytes = file.read()
         doc = fitz.open(stream=pdf_bytes, filetype="pdf")
-        for page in doc:
-            extracted_text += page.get_text()
+        # Faster text-only extraction
+        extracted_text = "".join([page.get_text("text") for page in doc])
         doc.close()
     else:
         return jsonify({'error': 'Unsupported file type'}), 400
@@ -154,7 +160,7 @@ def chat():
     if not user_question:
         return jsonify({'error': 'No question provided'}), 400
 
-    prompt = f"Refer to this medical report:\n\n{extracted_text_memory}\n\nUser question: {user_question}\n\nAnswer in simple terms:"
+    prompt = f"Refer to this medical report:\n\n{extracted_text_memory}\n\nUser question: {user_question}\n\nAnswer briefly only those questions that are related to medical field, if other than medical field questions are asked then apologise and say that I am just a medical assistant and can only answer for medical or uploaded report related query. Also if there are no extracted text from the report then also return the same apology.:"
     ollama_response = requests.post('http://localhost:11434/api/generate', json={
         "model": "mistral",
         "prompt": prompt,
