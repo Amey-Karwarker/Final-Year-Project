@@ -66,12 +66,15 @@ git clone https://github.com/Amey-Karwarker/Final-Year-Project.git
 cd Final-Year-Project
 ```
 
+```bash
 ### 2. Install Dependencies
 pip install -r requirements.txt
+```
 
+```bash
 ### 3. Run the application
 python app.py
-
+```
 
 ---
 
