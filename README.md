@@ -62,15 +62,16 @@ Final Year Project/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/AmeyKarwarker/Final-Year-Project.git
+git clone https://github.com/Amey-Karwarker/Final-Year-Project.git
 cd Final-Year-Project
+```
 
 ### 2. Install Dependencies
 pip install -r requirements.txt
 
 ### 3. Run the application
 python app.py
-```
+
 
 ---
 
